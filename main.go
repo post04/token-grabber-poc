@@ -62,8 +62,7 @@ func main() {
 	headers["Origin"] = []string{"https://discord.com"}
 	c, _, err := websocket.DefaultDialer.Dial(socketURL, headers)
 	if err != nil {
-		c.Close()
-		return
+		panic(err)
 	}
 
 	for {
