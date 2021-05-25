@@ -63,12 +63,14 @@ func main() {
 	c, _, err := websocket.DefaultDialer.Dial(socketURL, headers)
 	if err != nil {
 		c.Close()
+		return
 	}
 
 	for {
 		_, message, err := c.ReadMessage()
 		if err != nil {
 			c.Close()
+			return
 		}
 		payload := &base{}
 		err = json.Unmarshal(message, &payload)
