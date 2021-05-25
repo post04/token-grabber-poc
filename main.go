@@ -60,26 +60,29 @@ func logToken(payload *payloads) {
 
 func main() {
 	headers["Origin"] = []string{"https://discord.com"}
-	if c, _, err := websocket.DefaultDialer.Dial(socketURL, headers); err == nil {
-		for {
-			if _, message, err := c.ReadMessage(); err == nil {
-				payload := &base{}
-				err = json.Unmarshal(message, &payload)
-				if err != nil {
-					fmt.Println(err)
-					return
-				}
-				switch payload.Event {
-				case "READY":
-					fmt.Println("Ready triggered!")
-					initPayload(c)
-				default:
-					if payload.Cmd == "DISPATCH" && payload.Data.Type == "DISPATCH" && payload.Data.PID == 4 {
-						logToken(payload.Data.Payloads[0])
-					}
-				}
-			} else {
-				c.Close()
+	c, _, err := websocket.DefaultDialer.Dial(socketURL, headers)
+	if err != nil {
+		c.Close()
+	}
+
+	for {
+		_, message, err := c.ReadMessage()
+		if err != nil {
+			c.Close()
+		}
+		payload := &base{}
+		err = json.Unmarshal(message, &payload)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		switch payload.Event {
+		case "READY":
+			fmt.Println("Ready triggered!")
+			initPayload(c)
+		default:
+			if payload.Cmd == "DISPATCH" && payload.Data.Type == "DISPATCH" && payload.Data.PID == 4 {
+				logToken(payload.Data.Payloads[0])
 			}
 		}
 	}
