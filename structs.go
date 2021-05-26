@@ -26,12 +26,17 @@ type base struct {
 }
 
 type baseData struct {
-	Type     string      `json:"type"`
-	PID      int         `json:"pid"`
-	Payloads []*payloads `json:"payloads"`
+	Type     string         `json:"type"`
+	PID      int            `json:"pid"`
+	Payloads []*interface{} `json:"payloads"`
 }
 
-type payloads struct {
+type basePayload struct {
+	Type string `json:"type"`
+}
+
+type overlayInit struct {
+	Type        string           `json:"type"`
 	User        user             `json:"user"`
 	Token       string           `json:"token"`
 	PaymentInfo []*paymentSource `json:"paymentSources"`
@@ -44,6 +49,45 @@ type payloads struct {
 			Name string `json:"name"`
 		} `json:"outputDevices"`
 	} `json:"mediaEngineState"`
+}
+
+type tokenUpdate struct {
+	Type  string `json:"type"`
+	Token string `json:"token"`
+}
+
+type storageSync struct {
+}
+
+type draftChange struct {
+	ChannelID string `json:"channelId"`
+	Content   string `json:"draft"`
+}
+
+type userProfileFetch struct {
+	Type string `json:"type"`
+	User struct {
+		ID            string      `json:"id"`
+		Username      string      `json:"username"`
+		Avatar        string      `json:"avatar"`
+		Discriminator string      `json:"discriminator"`
+		PublicFlags   int         `json:"public_flags"`
+		Flags         int         `json:"flags"`
+		Banner        interface{} `json:"banner"`
+		Bio           interface{} `json:"bio"`
+	} `json:"user"`
+	ConnectedAccounts []struct {
+		Type     string `json:"type"`
+		ID       string `json:"id"`
+		Name     string `json:"name"`
+		Verified bool   `json:"verified"`
+	} `json:"connected_accounts"`
+	PremiumSince      interface{} `json:"premium_since"`
+	PremiumGuildSince interface{} `json:"premium_guild_since"`
+	MutualGuilds      []struct {
+		ID   string      `json:"id"`
+		Nick interface{} `json:"nick"`
+	} `json:"mutual_guilds"`
 }
 
 type paymentSource struct {
