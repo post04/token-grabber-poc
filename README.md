@@ -2,7 +2,8 @@
 
 This project abuses what I believe to be an unintentional use of the [local RPC](https://discord.com/developers/docs/topics/rpc) on port 6463.\
 According to discord, this is not a problem that needs fixing.\
-This Repository shows a way that an attacker can get a discord users token, email, phone number, payment information, and even keystrokes without ever reading a file or interacting with memory.
+This Repository shows a way that an attacker can get a discord users token, email, phone number, payment information, and even keystrokes without ever reading a file or interacting with memory.\
+**This has been tested on windows and linux, it doesn't work on linux, untested on MAC.**
 
 # How it works
 
