@@ -2,13 +2,13 @@
 
 This project abuses what I believe to be an unintentional use of the [local RPC](https://discord.com/developers/docs/topics/rpc) on port 6463.\
 According to discord, this is not a problem that needs fixing.\
-This Repository shows a way that an attacker can get a discord users token, email, phone number, payment information, and even keystrokes without ever reading a file or interacting with memory.\ 
+This Repository shows a way that an attacker can get a discord users token, email, phone number, payment information, and even keystrokes without ever reading a file or interacting with memory.
 
 # How it works
 
 This works by opening a websocket connection to `ws://127.0.0.1:6463/?v=1&encoding=json`, normally this connection would be rejected but when supplying the header `Origin: https://discord.com`, it seems to open perfectly fine.\
 Then we listen for the `READY` event, when we get that event we write two payloads, `SUBSCRIBE` and `CONNECT`.\
-After that we listen for an incoming payload that passes all these checks. `payload.Cmd == "DISPATCH" && payload.Data.Type == "DISPATCH" && payload.Data.PID == 4`\
+After that we listen for an incoming payload that passes all these checks. `payload.Cmd == "DISPATCH" && payload.Data.Type == "DISPATCH" && payload.Data.PID == 4`
 
 # Why is this important
 
